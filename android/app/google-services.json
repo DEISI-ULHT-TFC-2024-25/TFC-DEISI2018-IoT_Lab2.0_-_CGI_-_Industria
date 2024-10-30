@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "835094502343",
+    "firebase_url": "https://flutter-firebase-tfc-e46ac-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "flutter-firebase-tfc-e46ac",
+    "storage_bucket": "flutter-firebase-tfc-e46ac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:835094502343:android:a7e413ab1467d4b8d357e2",
+        "android_client_info": {
+          "package_name": "com.example.tfc_industria"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABPtBXhd8RwisgvTsnyl3c8GlJqSKnqfs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
