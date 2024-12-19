@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'loginuser.dart'; // Importe dart:async para usar o Timer
+import 'package:flutter/material.dart';
+import 'loginuser.dart'; // Navegar para o widget atualizado de login
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -12,7 +11,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Timer _timer; // Adiciona um Timer
+  late Timer _timer;
 
   @override
   void initState() {
@@ -22,17 +21,19 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       vsync: this,
     )..repeat();
 
-    // Defina o Timer para mudar de tela
+    // Timer para mudar para a tela de LoginUser
     _timer = Timer(const Duration(seconds: 5), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginUser())); // Altere NextScreen para sua tela destino
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginUser()),
+      );
     });
-
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _timer.cancel(); // Cancela o Timer ao sair da tela
+    _timer.cancel();
     super.dispose();
   }
 
@@ -49,17 +50,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class NextScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('Você está na próxima tela!'),
       ),
     );
   }

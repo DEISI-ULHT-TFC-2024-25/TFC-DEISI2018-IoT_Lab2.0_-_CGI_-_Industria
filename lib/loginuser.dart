@@ -1,8 +1,8 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // Biblioteca HTTP para chamadas à API
+import 'package:tfc_industria/databaseconnector.dart';
 import 'package:tfc_industria/navigationBarPages/main_page.dart';
-
-import 'navigationBarPages/home.dart';
 
 class LoginUser extends StatefulWidget {
   const LoginUser({super.key});
@@ -12,21 +12,55 @@ class LoginUser extends StatefulWidget {
 }
 
 class _LoginUserState extends State<LoginUser> {
-  final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
   final _formKey = GlobalKey<FormState>(); // Chave para identificar o formulário
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final snapshot = await _databaseReference.child('listNode').get();
-      if (snapshot.exists) {
-        print(snapshot.value);
+  // Função para fazer login via API
+  Future<void> _login() async {
+    try {
+      final conn = await DatabaseConnector().connect();
+
+      // Query para verificar o login
+      final results = await conn.query(
+        'SELECT * FROM Utilizadores WHERE username = ? AND password = ?',
+        [_userController.text, _passwordController.text],
+      );
+
+      if (results.isNotEmpty) {
+        final user = results.first.fields; // Dados do user
+        print('Login bem-sucedido para: ${user['username']}');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainPages()),
+        );
       } else {
-        print('No data available.');
+        print('Credenciais inválidas');
+        _showError('Credenciais inválidas.');
       }
-    });
+
+      await conn.close();
+    } catch (e) {
+      print('Erro ao conectar: $e');
+      _showError('Erro de conexão. Verifique sua rede ou MySQL.');
+    }
   }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Erro'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,20 +75,28 @@ class _LoginUserState extends State<LoginUser> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: 60),
+                  const SizedBox(height: 60),
                   Image.asset('images/img.png'),
                   const Text(
                     'IOT - IndusTria',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black,),
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
-                  SizedBox(height: 50),
+                  const SizedBox(height: 50),
                   const Padding(
                     padding: EdgeInsets.only(left: 0),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Bem-Vindo!',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF7A2119)),
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF7A2119),
+                        ),
                       ),
                     ),
                   ),
@@ -68,24 +110,24 @@ class _LoginUserState extends State<LoginUser> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   TextFormField(
+                    controller: _userController,
                     decoration: const InputDecoration(
                       labelText: 'Nº do utilizador',
-                      prefixIcon: Icon(Icons.person,  color: Colors.black),
+                      prefixIcon: Icon(Icons.person, color: Colors.black),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira o Nº do utilizador';
-                      } else if (value != "U4567") {
-                        return 'Nº do utilizador incorreto';
                       }
                       return null;
                     },
                   ),
-                  SizedBox(height: 25),
+                  const SizedBox(height: 25),
                   TextFormField(
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Palavra-Passe',
@@ -95,33 +137,36 @@ class _LoginUserState extends State<LoginUser> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira a Palavra-Passe';
-                      } else if (value != "12345") {
-                        return 'Palavra-Passe incorreta';
                       }
                       return null;
                     },
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF7A2119), // Cor de fundo
-                      minimumSize: Size.fromHeight(50), // Tamanho do botão
+                      backgroundColor: const Color(0xFF7A2119), // Cor de fundo
+                      minimumSize: const Size.fromHeight(50), // Tamanho do botão
                     ),
                     onPressed: () {
-                      // Validate retorna true se o formulário é válido, ou seja, todos os campos passaram pelas validações
+                      print("Botão precionado");
                       if (_formKey.currentState!.validate()) {
-                        // Ir para outro ecra sem conseguir voltar atras
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => MainPages()),
-                        );
+                        _login(); // Chama a função para login
+                      } else{
+                        print("Validação falhou");
                       }
                     },
-                    child: const Text('Entrar', style: TextStyle(fontSize: 18, color: Colors.white)),
+                    child: const Text(
+                      'Entrar',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {},
-                    child: const Text('    Esqueceste a Palavra-Passe?\nEntre em contacto com a empresa', style: TextStyle(color: Colors.grey)),
+                    child: const Text(
+                      'Esqueceste a Palavra-Passe?\nEntre em contacto com a empresa',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
                 ],
               ),
