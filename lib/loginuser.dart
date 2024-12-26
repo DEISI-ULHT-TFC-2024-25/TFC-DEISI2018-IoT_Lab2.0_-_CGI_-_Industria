@@ -19,64 +19,19 @@ class _LoginUserState extends State<LoginUser> {
   final TextEditingController _passwordController = TextEditingController();
 
 
-  /*
-  // Função para fazer login via API
   Future<void> _login() async {
     try {
-      final conn = await DatabaseConnector().connect();
-
-      // Query para verificar o login
-      final results = await conn.query(
-        'SELECT * FROM Utilizadores WHERE username = ? AND password = ?',
-        [_userController.text, _passwordController.text],
-      );
-
-      if (results.isNotEmpty) {
-        final user = results.first.fields;
-        print('Login bem-sucedido para: ${user['username']}');
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainPages()),
-        );
-      } else {
-        print('Credenciais inválidas');
-        _showError('Credenciais inválidas.');
-      }
-
-      await conn.close();
-    } on MySqlException catch (e) {
-      print('Erro específico de MySQL: $e');
-      _showError('Erro no banco de dados. Verifique as configurações.');
-    } catch (e) {
-      print('Erro geral ao conectar: $e');
-      _showError('Erro de conexão. Verifique sua rede ou servidor.');
-    }
-  }
-   */
-  Future<void> _login() async {
-    try {
-      /*
-      final db = DatabaseConnector();
-
-      await db.connect();
-      print("first");
-
-      final conn = db.connection;
-      print("second");
-
-       */
-
-
 
       final conn = await MySQLConnection.createConnection(
         host: "10.0.2.2",
         port: 3306,
         userName: "root",
-        password: "my-secret",
-        databaseName: "Teste", // optional
+        password: "secret", // my-secret
+        databaseName: "IoT_Lab2_0", // Teste
       );
 
       await conn.connect();
-      /*
+
       final result = await conn.execute(
         "SELECT * FROM Utilizadores WHERE username = :username AND password = :password",
         {
@@ -84,11 +39,13 @@ class _LoginUserState extends State<LoginUser> {
           "password": _passwordController.text.toString(),
         },
       );
-       */
+
+      /*
       final result = await conn.execute(
           "SELECT * FROM Utilizadores WHERE username = '${_userController.text}' AND password = '${_passwordController.text}'"
       );
-      print("third");
+
+       */
 
       if (result.rows.isNotEmpty) {
         print("Login bem-sucedido!");
@@ -97,12 +54,12 @@ class _LoginUserState extends State<LoginUser> {
         );
       } else {
         print("Credenciais inválidas.");
+        _showError('Credenciais inválidas.');
       }
 
-      //await db.close();
       await conn.close();
     } catch (e) {
-      _showError('Erro no banco de dados. Verifique as configurações.');
+      _showError('Erro na base de dados. Verifique as configurações.');
       print("Erro ao conectar à base de dados: $e");
     }
   }
