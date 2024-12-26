@@ -187,6 +187,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 // Widget para ler dados do Firebase Realtime Database para a aba "Bloco 1"
+// TODO:Begin; Trocar para MySQL
 class FirebaseDataList extends StatefulWidget {
   @override
   _FirebaseDataListState createState() => _FirebaseDataListState();
@@ -271,6 +272,7 @@ class _FirebaseDataListState extends State<FirebaseDataList> {
     );
   }
 }
+// TODO:END; Trocar para MySQL
 
 // Widget da lista de tarefas e temperatura para a aba "Bloco 2"
 class TaskTemperatureWidget extends StatefulWidget {
