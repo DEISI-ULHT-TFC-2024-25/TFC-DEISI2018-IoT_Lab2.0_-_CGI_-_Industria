@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // Biblioteca HTTP para chamadas à API
+import 'package:mysql_client/mysql_client.dart';
+//import 'package:mysql1/mysql1.dart';
 import 'package:tfc_industria/databaseconnector.dart';
 import 'package:tfc_industria/navigationBarPages/main_page.dart';
 
@@ -16,6 +18,8 @@ class _LoginUserState extends State<LoginUser> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+
+  /*
   // Função para fazer login via API
   Future<void> _login() async {
     try {
@@ -28,7 +32,7 @@ class _LoginUserState extends State<LoginUser> {
       );
 
       if (results.isNotEmpty) {
-        final user = results.first.fields; // Dados do user
+        final user = results.first.fields;
         print('Login bem-sucedido para: ${user['username']}');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => MainPages()),
@@ -39,11 +43,70 @@ class _LoginUserState extends State<LoginUser> {
       }
 
       await conn.close();
+    } on MySqlException catch (e) {
+      print('Erro específico de MySQL: $e');
+      _showError('Erro no banco de dados. Verifique as configurações.');
     } catch (e) {
-      print('Erro ao conectar: $e');
-      _showError('Erro de conexão. Verifique sua rede ou MySQL.');
+      print('Erro geral ao conectar: $e');
+      _showError('Erro de conexão. Verifique sua rede ou servidor.');
     }
   }
+   */
+  Future<void> _login() async {
+    try {
+      /*
+      final db = DatabaseConnector();
+
+      await db.connect();
+      print("first");
+
+      final conn = db.connection;
+      print("second");
+
+       */
+
+
+
+      final conn = await MySQLConnection.createConnection(
+        host: "10.0.2.2",
+        port: 3306,
+        userName: "root",
+        password: "my-secret",
+        databaseName: "Teste", // optional
+      );
+
+      await conn.connect();
+      /*
+      final result = await conn.execute(
+        "SELECT * FROM Utilizadores WHERE username = :username AND password = :password",
+        {
+          "username": _userController.text.toString(),
+          "password": _passwordController.text.toString(),
+        },
+      );
+       */
+      final result = await conn.execute(
+          "SELECT * FROM Utilizadores WHERE username = '${_userController.text}' AND password = '${_passwordController.text}'"
+      );
+      print("third");
+
+      if (result.rows.isNotEmpty) {
+        print("Login bem-sucedido!");
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainPages()),
+        );
+      } else {
+        print("Credenciais inválidas.");
+      }
+
+      //await db.close();
+      await conn.close();
+    } catch (e) {
+      _showError('Erro no banco de dados. Verifique as configurações.');
+      print("Erro ao conectar à base de dados: $e");
+    }
+  }
+
 
   void _showError(String message) {
     showDialog(

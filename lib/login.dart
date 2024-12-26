@@ -54,3 +54,14 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 }
+
+class NextScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text('Você está na próxima tela!'),
+      ),
+    );
+  }
+}
