@@ -3,6 +3,7 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:tfc_industria/databaseconnector.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -78,7 +79,7 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: TabBarView(
                 children: [
-                  FirebaseDataList(),
+                  MySQLDataList(),
                   // Conteúdo da aba "Bloco 1"
                   TaskTemperatureWidget(),
                   // Conteúdo da aba "Bloco 2"
@@ -188,13 +189,14 @@ class _HomePageState extends State<HomePage> {
 
 // Widget para ler dados do Firebase Realtime Database para a aba "Bloco 1"
 // TODO:Begin; Trocar para MySQL
-class FirebaseDataList extends StatefulWidget {
+class MySQLDataList extends StatefulWidget {
   @override
-  _FirebaseDataListState createState() => _FirebaseDataListState();
+  _MySQLDataListState createState() => _MySQLDataListState();
 }
 
-class _FirebaseDataListState extends State<FirebaseDataList> {
-  final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
+class _MySQLDataListState extends State<MySQLDataList> {
+  final db = DatabaseConnector();
+  List<Map<String, dynamic>> _dataList = [];
 
   // Definir uma lista de ícones
   final List<IconData> icons = [
@@ -216,58 +218,65 @@ class _FirebaseDataListState extends State<FirebaseDataList> {
   @override
   void initState() {
     super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      await db.connect();
+      final conn = db.connection;
+      // trocar por algo que corresponda à estrutura inicial do firebase
+      // aqui tinha algo sobre a lista com ingredientes algo que tem que existir na bd de inicio
+      final result = await conn.execute('SELECT * FROM Maquina');
+      setState(() {
+        _dataList = result.rows.map((row) => row.assoc()).toList();
+      });
+    } catch (e) {
+      print("Erro ao buscar dados: $e");
+    } finally {
+      await db.close();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FirebaseAnimatedList(
-      query: _databaseReference.child('listNode'),
-      itemBuilder: (BuildContext context, DataSnapshot snapshot,
-          Animation<double> animation, int index) {
-        // Icon consoante a ordem
-        IconData icon = icons[index % icons.length];
+    return ListView.builder(
+      itemCount: _dataList.length,
+      itemBuilder: (context, index) {
+        final item = _dataList[index];
+        final icon = icons[index % icons.length]; // Escolhe o ícone baseado no índice
 
-        if (snapshot.exists) {
-          final data = Map<String, dynamic>.from(snapshot.value as Map);
-          final title = data['title'] ?? 'No Title';
-          final subitem = data['subitem'] ?? 'No Subitem';
+        final title = item['nome'] ?? 'Sem nome';
+        final location = item['localizacao'] ?? 'Localização desconhecida';
 
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            padding: EdgeInsets.all(0.0),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: Colors.grey[400]!),
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          padding: EdgeInsets.all(0.0),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(5.0),
+            border: Border.all(color: Colors.grey[400]!),
+          ),
+          child: ListTile(
+            leading: Icon(icon, color: Color(0xFF7A2119)),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  location,
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+              ],
             ),
-            child: ListTile(
-              leading: Icon(icon, color: Color(0xFF7A2119)),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    subitem,
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                ],
-              ),
-            ),
-          );
-        } else {
-          return Center(
-            child: Text(
-              'No data available',
-              style: TextStyle(fontSize: 18),
-            ),
-          );
-        }
+          ),
+        );
       },
     );
   }
