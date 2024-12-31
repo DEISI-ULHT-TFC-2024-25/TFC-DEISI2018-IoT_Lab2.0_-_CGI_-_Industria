@@ -6,35 +6,38 @@ class DatabaseConnector {
 
   DatabaseConnector._internal();
 
-  late final MySQLConnection _conn;
+  MySQLConnection? _conn;
 
-  // Configurações da conexão
   Future<void> connect() async {
-    try {
-      _conn = await MySQLConnection.createConnection(
-        host: "10.0.2.2",
-        port: 3309,
-        userName: "root",
-        password: "my-secret",
-        databaseName: "Teste",
-      );
-
-      //await _conn.connect();
-      //print("Conexão à base de dados bem-sucedida!");
-    } catch (e) {
-      print("Erro ao conectar à base de dados: $e");
-      throw Exception('Erro ao conectar à db: $e');
+    if (_conn == null) {
+      try {
+        _conn = await MySQLConnection.createConnection(
+          host: "10.0.2.2",
+          port: 3306,
+          userName: "root",
+          password: "secret",
+          databaseName: "IoT_Lab2_0",
+        );
+        await _conn!.connect();
+      } catch (e) {
+        print("Erro ao conectar à base de dados: $e");
+        _conn = null;
+        throw Exception("Erro ao conectar à base de dados: $e");
+      }
     }
+  }
+
+  MySQLConnection get connection {
+    if (_conn == null) {
+      throw Exception("A conexão não foi inicializada.");
+    }
+    return _conn!;
   }
 
   Future<void> close() async {
-    if (_conn.connected) {
-      await _conn.close();
-      print("Conexão ao banco de dados encerrada.");
-    } else {
-      print("Conexão já estava fechada ou nunca foi inicializada.");
+    if (_conn != null) {
+      await _conn!.close();
+      _conn = null;
     }
   }
-
-  MySQLConnection get connection => _conn; // Retorna a conexão ativa
 }

@@ -19,6 +19,7 @@ class _LoginUserState extends State<LoginUser> {
   final TextEditingController _passwordController = TextEditingController();
 
 
+  /*
   Future<void> _login() async {
     try {
 
@@ -61,6 +62,38 @@ class _LoginUserState extends State<LoginUser> {
     } catch (e) {
       _showError('Erro na base de dados. Verifique as configurações.');
       print("Erro ao conectar à base de dados: $e");
+    }
+  }
+
+   */
+  Future<void> _login() async {
+    try {
+      final db = DatabaseConnector();
+      await db.connect();
+      final conn = db.connection;
+
+      final result = await conn.execute(
+        "SELECT * FROM Utilizadores WHERE username = :username AND password = :password",
+        {
+          "username": _userController.text.toString(),
+          "password": _passwordController.text.toString(),
+        },
+      );
+
+      if (result.rows.isNotEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainPages()),
+        );
+      } else {
+        _showError('Credenciais inválidas.');
+      }
+
+    } catch (e) {
+      _showError('Erro na base de dados. Verifique as configurações.');
+      print("Erro ao conectar à base de dados: $e");
+    } finally {
+      final db = DatabaseConnector();
+      await db.close();
     }
   }
 
