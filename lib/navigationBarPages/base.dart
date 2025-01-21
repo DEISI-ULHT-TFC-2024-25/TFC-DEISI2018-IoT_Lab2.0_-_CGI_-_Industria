@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
+import 'package:tfc_industria/databaseconnector.dart';
 class BasePage extends StatefulWidget {
   const BasePage({super.key});
 
@@ -15,8 +15,56 @@ class _BasePageState extends State<BasePage> {
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _typeProductController = TextEditingController();
 
-  DatabaseReference listaBaseDados = FirebaseDatabase.instance.ref().child('listBasedados');
+  final db = DatabaseConnector();
+  List<Map<String, dynamic>> _dataList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      await db.connect();
+      final conn = db.connection;
+
+      final result = await conn.execute(
+          'SELECT Maquina.nome, Dados_Sensor.valor AS temperature, Dados_Sensor.timestamp AS date, '
+              'Dados_Sensor.id_sensor, Maquina.localizacao, Maquina.status FROM Maquina '
+              'JOIN Dados_Sensor ON Maquina.id_maquina = Dados_Sensor.id_maquina '
+              'ORDER BY Dados_Sensor.timestamp DESC');
+
+      setState(() {
+        _dataList = result.rows
+            .map((row) => {
+          "nome": row.assoc()["nome"],
+          "temperature": row.assoc()["temperature"],
+          "date": row.assoc()["date"].toString(),
+          "id_sensor": row.assoc()["id_sensor"],
+          "localizacao": row.assoc()["localizacao"],
+          "status": row.assoc()["status"]
+        })
+            .toList();
+      });
+    } catch (e) {
+      print("Erro ao buscar dados: $e");
+    } finally {
+      await db.close();
+    }
+  }
+  Color getIconColorEstado(String status) {
+    switch (status) {
+      case 'Em Produção...':
+        return Colors.orange;
+      case 'Fase da Mistura':
+        return Colors.red;
+      case 'Produzido com Sucesso !':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -129,120 +177,84 @@ class _BasePageState extends State<BasePage> {
             ),
             SizedBox(height: 20),
             Expanded(
-              // TODO:Begin; Trocar para MySQL
-              child: StreamBuilder(
-                stream: listaBaseDados.onValue,
-                builder: (context, snapshot) {
-                  print('Snapshot data: ${snapshot.data}');
-                  if (snapshot.hasData && !snapshot.hasError && snapshot.data!.snapshot.value != null) {
-                    Map data = snapshot.data!.snapshot.value as Map;
-                    List<Map<String, dynamic>> items = [];
-                    data.forEach((index, data) => items.add({"key": index, ...data}));
-
-                    // Ordenar os itens pela hora em ordem decrescente
-                    items.sort((a, b) {
-                      DateTime timeA = DateTime.parse("2000-01-01 ${a['time']}:00");
-                      DateTime timeB = DateTime.parse("2000-01-01 ${b['time']}:00");
-                      return timeB.compareTo(timeA);
-                    });
-
-                    return ListView(
-                      children: items.map((item) {
-                        Color getIconColorEstado(String tipoTexto) {
-                          switch (tipoTexto) {
-                            case 'Em Produção...':
-                              return Colors.orange;
-                            case 'Fase da Mistura':
-                              return Colors.red;
-                            case 'Produzido com Sucesso !':
-                              return Colors.green;
-                            default:
-                              return Colors.grey;
-                          }
-                        }
-
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+              child: ListView.builder(
+                itemCount: _dataList.length,
+                itemBuilder: (context, index) {
+                  final item = _dataList[index];
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: customColor),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['time'] ?? '',
+                                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 5),
+                              Text(item['date'] ?? ''),
+                              Row(
+                                children: [
+                                  Icon(MdiIcons.thermometerHigh, size: 20, color: Colors.indigo),
+                                  SizedBox(width: 5),
+                                  Text(item['temperature'] ?? ''),
+                                ],
+                              ),
+                            ],
                           ),
-                          margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: customColor), // Borda ao redor do Card
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Row(
+                          SizedBox(width: 20),
+                          Container(
+                            height: 60,
+                            width: 2,
+                            color: Color(0xFF7A2119),
+                          ),
+                          SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Row(
                                   children: [
-                                    Text(
-                                      item['time'] ?? '',
-                                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 5),
-                                    Text(item['date'] ?? ''),
-                                    Row(
-                                      children: [
-                                        Icon(MdiIcons.thermometerHigh, size: 20, color: Colors.indigo),
-                                        SizedBox(width: 5),
-                                        Text(item['temperature'] ?? ''),
-                                      ],
-                                    ),
+                                    Icon(MdiIcons.viewComfyOutline, size: 20, color: Colors.brown),
+                                    SizedBox(width: 5),
+                                    Text(item['nome'] ?? '', style: TextStyle(fontSize: 14)),
                                   ],
                                 ),
-                                SizedBox(width: 20),
-                                Container(
-                                  height: 60,
-                                  width: 2,
-                                  color: Color(0xFF7A2119),
+                                SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Icon(MdiIcons.counter, size: 20),
+                                    SizedBox(width: 5),
+                                    Text(item['id_sensor']?.toString() ?? '', style: TextStyle(fontSize: 14)),
+                                  ],
                                 ),
-                                SizedBox(width: 20),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(MdiIcons.viewComfyOutline, size: 20, color: Colors.brown),
-                                          SizedBox(width: 5),
-                                          Text(item['chocolateName'] ?? '', style: TextStyle(fontSize: 14)),
-                                        ],
-                                      ),
-                                      SizedBox(height: 5),
-                                      Row(
-                                        children: [
-                                          Icon(MdiIcons.counter, size: 20),
-                                          SizedBox(width: 5),
-                                          Text(item['NchocolateProduzir'] ?? '', style: TextStyle(fontSize: 14)),
-                                        ],
-                                      ),
-                                      SizedBox(height: 5),
-                                      Row(
-                                        children: [
-                                          Icon(MdiIcons.checkNetworkOutline, size: 20, color: getIconColorEstado(item['produzidoComSucesso'] ?? '')),
-                                          SizedBox(width: 5),
-                                          Text(item['produzidoComSucesso'] ?? '', style: TextStyle(fontSize: 14)),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Icon(MdiIcons.checkNetworkOutline, size: 20, color: getIconColorEstado(item['status'] ?? '')),
+                                    SizedBox(width: 5),
+                                    Text(item['status'] ?? '', style: TextStyle(fontSize: 14)),
+                                  ],
                                 ),
                               ],
                             ),
                           ),
-                        );
-                      }).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else {
-                    return Center(child: Text('No data available'));
-                  }
+                        ],
+                      ),
+                    ),
+                  );
                 },
               ),
-              // TODO:END; Trocar para MySQL
             ),
           ],
         ),
