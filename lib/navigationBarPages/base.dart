@@ -30,22 +30,22 @@ class _BasePageState extends State<BasePage> {
       final conn = db.connection;
 
       final result = await conn.execute(
-          'SELECT Maquina.nome, Dados_Sensor.valor AS temperature, Dados_Sensor.timestamp AS date, '
-              'Dados_Sensor.id_sensor, Maquina.localizacao, Maquina.status FROM Maquina '
-              'JOIN Dados_Sensor ON Maquina.id_maquina = Dados_Sensor.id_maquina '
-              'ORDER BY Dados_Sensor.timestamp DESC');
+          'SELECT id_produto, nome, '
+              'DATE_FORMAT(data, "%d:%m:%Y") AS data, '
+              'DATE_FORMAT(hora, "%H:%i") AS hora, '
+              'temperatura, nr_a_produzir, estado '
+              'FROM Produto '
+              'ORDER BY data DESC, hora DESC');
 
       setState(() {
-        _dataList = result.rows
-            .map((row) => {
+        _dataList = result.rows.map((row) => {
           "nome": row.assoc()["nome"],
-          "temperature": row.assoc()["temperature"],
-          "date": row.assoc()["date"].toString(),
-          "id_sensor": row.assoc()["id_sensor"],
-          "localizacao": row.assoc()["localizacao"],
-          "status": row.assoc()["status"]
-        })
-            .toList();
+          "data": row.assoc()["data"].toString(),
+          "hora": row.assoc()["hora"].toString(),
+          "temperatura": row.assoc()["temperatura"],
+          "nr_a_produzir": row.assoc()["nr_a_produzir"],
+          "estado": row.assoc()["estado"]
+        }).toList();
       });
     } catch (e) {
       print("Erro ao buscar dados: $e");
@@ -53,6 +53,7 @@ class _BasePageState extends State<BasePage> {
       await db.close();
     }
   }
+
   Color getIconColorEstado(String status) {
     switch (status) {
       case 'Em Produção...':
@@ -198,16 +199,16 @@ class _BasePageState extends State<BasePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item['time'] ?? '',
+                                item['hora'] ?? '',
                                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(height: 5),
-                              Text(item['date'] ?? ''),
+                              Text(item['data'] ?? ''),
                               Row(
                                 children: [
                                   Icon(MdiIcons.thermometerHigh, size: 20, color: Colors.indigo),
                                   SizedBox(width: 5),
-                                  Text(item['temperature'] ?? ''),
+                                  Text(item['temperatura'] ?? ''),
                                 ],
                               ),
                             ],
@@ -235,15 +236,15 @@ class _BasePageState extends State<BasePage> {
                                   children: [
                                     Icon(MdiIcons.counter, size: 20),
                                     SizedBox(width: 5),
-                                    Text(item['id_sensor']?.toString() ?? '', style: TextStyle(fontSize: 14)),
+                                    Text(item['nr_a_produzir']?.toString() ?? '', style: TextStyle(fontSize: 14)),
                                   ],
                                 ),
                                 SizedBox(height: 5),
                                 Row(
                                   children: [
-                                    Icon(MdiIcons.checkNetworkOutline, size: 20, color: getIconColorEstado(item['status'] ?? '')),
+                                    Icon(MdiIcons.checkNetworkOutline, size: 20, color: getIconColorEstado(item['estado'] ?? '')),
                                     SizedBox(width: 5),
-                                    Text(item['status'] ?? '', style: TextStyle(fontSize: 14)),
+                                    Text(item['estado'] ?? '', style: TextStyle(fontSize: 14)),
                                   ],
                                 ),
                               ],
