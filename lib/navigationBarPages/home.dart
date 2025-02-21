@@ -225,11 +225,16 @@ class _MySQLDataListState extends State<MySQLDataList> {
     try {
       await db.connect();
       final conn = db.connection;
-      // trocar por algo que corresponda à estrutura inicial do firebase
-      // aqui tinha algo sobre a lista com ingredientes algo que tem que existir na bd de inicio
-      final result = await conn.execute('SELECT * FROM Maquina');
+
+      final result = await conn.execute(
+          'SELECT nome, descricao FROM Ingrediente');
+
+
       setState(() {
-        _dataList = result.rows.map((row) => row.assoc()).toList();
+        _dataList = result.rows.map((row) => {
+          "nome": row.assoc()["nome"],
+          "descricao": row.assoc()["descricao"]
+        }).toList();
       });
     } catch (e) {
       print("Erro ao buscar dados: $e");
@@ -247,7 +252,7 @@ class _MySQLDataListState extends State<MySQLDataList> {
         final icon = icons[index % icons.length]; // Escolhe o ícone baseado no índice
 
         final title = item['nome'] ?? 'Sem nome';
-        final location = item['localizacao'] ?? 'Localização desconhecida';
+        final descricao = item['descricao'] ?? 'sem descricao';
 
         return Container(
           margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -270,7 +275,7 @@ class _MySQLDataListState extends State<MySQLDataList> {
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  location,
+                  descricao,
                   style: TextStyle(fontSize: 14, color: Colors.black54),
                 ),
               ],

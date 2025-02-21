@@ -30,7 +30,7 @@ class _BasePageState extends State<BasePage> {
       final conn = db.connection;
 
       final result = await conn.execute(
-          'SELECT id_produto, nome, '
+          'SELECT nome, '
               'DATE_FORMAT(data, "%d:%m:%Y") AS data, '
               'DATE_FORMAT(hora, "%H:%i") AS hora, '
               'temperatura, nr_a_produzir, estado '
