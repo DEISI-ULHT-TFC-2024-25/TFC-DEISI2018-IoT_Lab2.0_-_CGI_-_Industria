@@ -8,5 +8,5 @@ final navigationsBarList = [
   (title: 'Home', icon: Icons.home , widget: HomePage()),
   (title: 'Base', icon: Icons.memory_outlined , widget: BasePage()),
   (title: 'Controller', icon: Icons.gamepad , widget: ControllerPage()),
-  (title: 'All', icon: Icons.home , widget: AllPage()),
+  (title: 'Grafs', icon: Icons.bar_chart , widget: AllPage()),
 ];

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // Biblioteca HTTP para chamadas à API
-import 'package:mysql_client/mysql_client.dart';
-//import 'package:mysql1/mysql1.dart';
 import 'package:tfc_industria/databaseconnector.dart';
 import 'package:tfc_industria/navigationBarPages/main_page.dart';
 
@@ -18,50 +16,33 @@ class _LoginUserState extends State<LoginUser> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-
+  // Função para fazer login via API
   /*
   Future<void> _login() async {
     try {
+      final conn = await DatabaseConnector().connect();
 
-      final conn = await MySQLConnection.createConnection(
-        host: "10.0.2.2",
-        port: 3306,
-        userName: "root",
-        password: "secret", // my-secret
-        databaseName: "IoT_Lab2_0", // Teste
+      // Query para verificar o login
+      final results = await conn.query(
+        'SELECT * FROM Utilizadores WHERE username = ? AND password = ?',
+        [_userController.text, _passwordController.text],
       );
 
-      await conn.connect();
-
-      final result = await conn.execute(
-        "SELECT * FROM Utilizadores WHERE username = :username AND password = :password",
-        {
-          "username": _userController.text.toString(),
-          "password": _passwordController.text.toString(),
-        },
-      );
-
-      /*
-      final result = await conn.execute(
-          "SELECT * FROM Utilizadores WHERE username = '${_userController.text}' AND password = '${_passwordController.text}'"
-      );
-
-       */
-
-      if (result.rows.isNotEmpty) {
-        print("Login bem-sucedido!");
+      if (results.isNotEmpty) {
+        final user = results.first.fields; // Dados do user
+        print('Login bem-sucedido para: ${user['username']}');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => MainPages()),
         );
       } else {
-        print("Credenciais inválidas.");
+        print('Credenciais inválidas');
         _showError('Credenciais inválidas.');
       }
 
       await conn.close();
     } catch (e) {
-      _showError('Erro na base de dados. Verifique as configurações.');
-      print("Erro ao conectar à base de dados: $e");
+      print('Erro ao conectar: $e');
+      _showError('Erro de conexão. Verifique sua rede ou MySQL.');
     }
   }
 
@@ -96,7 +77,6 @@ class _LoginUserState extends State<LoginUser> {
       await db.close();
     }
   }
-
 
   void _showError(String message) {
     showDialog(
@@ -203,6 +183,7 @@ class _LoginUserState extends State<LoginUser> {
                     onPressed: () {
                       print("Botão precionado");
                       if (_formKey.currentState!.validate()) {
+                        print("a tentar fazer login");
                         _login(); // Chama a função para login
                       } else{
                         print("Validação falhou");
