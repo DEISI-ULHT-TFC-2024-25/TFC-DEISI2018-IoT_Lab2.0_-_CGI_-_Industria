@@ -2,6 +2,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:flutter/material.dart';
 import 'package:tfc_industria/databaseconnector.dart';
+
 class MQTTManager {
   final String host;
   final List<String> topics; // Support multiple topics
@@ -66,14 +67,53 @@ class MQTTManager {
     }
   }
 
-  void disconnect() {
-    client.disconnect();
+  void disconnect() => client.disconnect();
+
+  Future<String> insertSensorData(String table, Map<String, double> data) async {
+    try {
+      DatabaseConnector dbConnector = DatabaseConnector();
+      await dbConnector.connect();
+      final conn = dbConnector.connection;
+
+      String sql = "";
+      Map<String, dynamic> parameters = {};
+
+      if (table == "PowerSensor") {
+        sql = "INSERT INTO PowerSensor (voltage, current, power) VALUES (:voltage, :current, :power)";
+        parameters = {
+          "voltage": data['voltage'] ?? 0.0,
+          "current": data['current'] ?? 0.0,
+          "power": data['power'] ?? 0.0,
+        };
+      } else if (table == "DHT11Sensor") {
+        sql = "INSERT INTO DHT11Sensor (temperature, humidity) VALUES (:temperature, :humidity)";
+        parameters = {
+          "temperature": data['temperature'] ?? 0.0,
+          "humidity": data['humidity'] ?? 0.0,
+        };
+        debugPrint(sql);
+      } else {
+        return "Erro: Tabela desconhecida!";
+      }
+
+
+      var result = await conn.execute(sql, parameters);
+
+      if (result.affectedRows > BigInt.zero) {
+        return "Dados inseridos com sucesso na tabela $table";
+      } else {
+        return "Erro ao inserir os dados na tabela $table";
+      }
+    } catch (e) {
+      return "Erro no banco de dados: $e";
+    } finally {
+      final db = DatabaseConnector();
+      await db.close();
+    }
   }
 
   // Handle incoming messages
   void onMessageReceived(String topic, String payload) async {
-    SensorToDataBase sensorDB = SensorToDataBase();
-
 
     if (topic == '22205245/anawen/device/power') {
       List<String> values = payload.split(',');
@@ -88,7 +128,7 @@ class MQTTManager {
           "power": power
         };
 
-        String result = await sensorDB.insertSensorData("PowerSensor", data);
+        String result = await insertSensorData("PowerSensor", data);
         debugPrint(result);
       }
     }
@@ -103,12 +143,11 @@ class MQTTManager {
           "humidity": humidity
         };
 
-        String result = await sensorDB.insertSensorData("DHT11Sensor", data);
+        String result = await insertSensorData("DHT11Sensor", data);
         debugPrint(result);
       }
     }
   }
-
 
 
   // Connection callbacks
@@ -118,58 +157,4 @@ class MQTTManager {
   void onSubscribeFail(String topic) => debugPrint('Failed to subscribe $topic');
   void onUnsubscribed(String? topic) => debugPrint('Unsubscribed topic: $topic');
   void pong() => debugPrint('Ping response received');
-}
-class SensorToDataBase {
-  final DatabaseConnector dbConnector = DatabaseConnector();
-
-  Future<String> insertSensorData(String table, Map<String, double> data) async {
-    try {
-      await dbConnector.connect();
-      final conn = dbConnector.connection;
-
-      // Define the SQL INSERT statement based on the sensor type
-      String sql = "";
-      if (table == "PowerSensor") {
-        sql = "INSERT INTO PowerSensor (voltage, current, power) VALUES (?, ?, ?)";
-
-      } else if (table == "DHT11Sensor") {
-        sql = "INSERT INTO DHT11Sensor (temperature, humidity) VALUES (?, ?)";
-        debugPrint(sql);
-      } else {
-        return "Erro: Tabela desconhecida!";
-      }
-
-      // Map the keys of 'data' to parameters in the query
-      Map<String, dynamic> parameters = {};
-
-      if (table == "PowerSensor") {
-        parameters = {
-          '@voltage': data['voltage'],
-          '@current': data['current'],
-          '@power': data['power'],
-        };
-      } else if (table == "DHT11Sensor") {
-        parameters = {
-          '@temperature': data['temperature'],
-          '@humidity': data['humidity'],
-        };
-      }
-
-      // Execute the query with parameters as a Map
-      var result = await conn.execute(sql, parameters);
-
-      if (result.affectedRows > BigInt.from(0)) {
-        return "Dados inseridos com sucesso na tabela $table";
-      } else {
-        return "Erro ao inserir os dados na tabela $table";
-      }
-    } catch (e) {
-      return "Erro no banco de dados: $e";
-    } finally {
-      await dbConnector.close();
-    }
-  }
-
-
-
 }
