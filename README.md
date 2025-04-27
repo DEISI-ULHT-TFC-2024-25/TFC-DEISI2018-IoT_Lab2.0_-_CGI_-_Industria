@@ -1,5 +1,5 @@
 # DEISI18 - IoT_Lab2.0-CGI-Industria
-- **Autor :**  Samir Natvarla & Ricardo Borges
+- **Autor :**  Samir Natvarlal & Ricardo Borges
 
 ## **Descrição**
   Este projeto explora a aplicação da Internet of Things (IoT) na indústria, visa solucionar os desafios de comunicação entre máquinas próximas fisicamente, mas distantes tecnologicamente no modelo M2M (Machine-to-Machine). O objetivo é conseguir superar a falta de interação entre essas máquinas, proporcionando uma integração eficiente para otimizar processos industriais. Adicionalmente, neste trabalho não apenas realça a aplicabilidade, mas também aborda os desafios associados aos conceitos de IoT na indústria. Propõe uma visão integrada para a gestão e otimização operacional das linhas de produção, incluindo máquinas, atuadores e sensores, consolidando informações de forma abrangente, com inclusão de uma Base de Dados e com uma simples integração de modelos preditivos.
