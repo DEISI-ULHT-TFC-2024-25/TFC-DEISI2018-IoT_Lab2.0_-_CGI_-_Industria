@@ -92,6 +92,19 @@ class MQTTManager {
           "humidity": data['humidity'] ?? 0.0,
         };
         debugPrint(sql);
+      } else if (table == "KPIs") {
+        sql = "INSERT INTO KPIs (temperature, humidity) VALUES (:temperature, :humidity)";
+        parameters = {
+          "uptime": data['uptime'] ?? 0.0,
+          "mqttReconnects": data['mqttReconnects'] ?? 0.0,
+          "motorActivations": data['motorActivations'] ?? 0.0,
+          "motorActivationTime": data['motorActivationTime'] ?? 0.0,
+          "switchActivations": data['switchActivations'] ?? 0.0,
+          "modeOKCount": data['modeOKCount'] ?? 0.0,
+          "modeNOTOKCount": data['modeNOTOKCount'] ?? 0.0,
+          "ledActivationTime": data['ledActivationTime'] ?? 0.0,
+          "totalEnergyConsumed": data['totalEnergyConsumed'] ?? 0.0,
+        };
       } else {
         return "Erro: Tabela desconhecida!";
       }
@@ -144,6 +157,35 @@ class MQTTManager {
         };
 
         String result = await insertSensorData("DHT11Sensor", data);
+        debugPrint(result);
+      }
+    }
+    else if (topic == '22205245/anawen/device/kpis') {
+      List<String> values = payload.split(',');
+      if (values.length >= 9) {
+        double uptime = double.parse(values[0].split(':')[1].trim());
+        double mqttReconnects = double.parse(values[1].split(':')[1].trim());
+        double motorActivations = double.parse(values[2].split(':')[1].trim());
+        double motorActivationTime = double.parse(values[3].split(':')[1].trim());
+        double switchActivations = double.parse(values[4].split(':')[1].trim());
+        double modeOKCount = double.parse(values[5].split(':')[1].trim());
+        double modeNOTOKCount = double.parse(values[6].split(':')[1].trim());
+        double ledActivationTime = double.parse(values[7].split(':')[1].trim());
+        double totalEnergyConsumed = double.parse(values[8].split(':')[1].trim());
+
+        Map<String, double> data = {
+          "uptime": uptime,
+          "mqttReconnects": mqttReconnects,
+          "motorActivations": motorActivations,
+          "motorActivationTime": motorActivationTime,
+          "switchActivations": switchActivations,
+          "modeOKCount": modeOKCount,
+          "modeNOTOKCount": modeNOTOKCount,
+          "ledActivationTime": ledActivationTime,
+          "totalEnergyConsumed": totalEnergyConsumed,
+        };
+
+        String result = await insertSensorData("KPIs", data);
         debugPrint(result);
       }
     }
