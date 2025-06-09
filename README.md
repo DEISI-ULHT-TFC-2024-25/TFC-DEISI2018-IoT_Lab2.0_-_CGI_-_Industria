@@ -1,8 +1,8 @@
-# DEISI14 - IoT_Lab2.0-CGI-Industria
-- **Autor :**  Ana Weng
+# DEISI18 - IoT_Lab2.0-CGI-Industria
+- **Autor :**  Samir Natvarlal & Ricardo Borges
 
 ## **Descrição**
-  Este projeto explora a aplicação da Internet of Things (IoT) na indústria, visa solucionar os desafios de comunicação entre máquinas próximas fisicamente, mas distantes tecnologicamente no modelo M2M (Machine-to-Machine). O objetivo é conseguir superar a falta de interação entre essas máquinas, proporcionando uma integração eficiente para otimizar processos industriais. Adicionalmente, neste trabalho não apenas realça a aplicabilidade, mas também aborda os desafios associados aos conceitos de IoT na indústria. Propõe uma visão integrada para a gestão e otimização operacional das linhas de produção, incluindo máquinas, atuadores e sensores, consolidando informações de forma abrangente.
+  Este projeto explora a aplicação da Internet of Things (IoT) na indústria, visa solucionar os desafios de comunicação entre máquinas próximas fisicamente, mas distantes tecnologicamente no modelo M2M (Machine-to-Machine). O objetivo é conseguir superar a falta de interação entre essas máquinas, proporcionando uma integração eficiente para otimizar processos industriais. Adicionalmente, neste trabalho não apenas realça a aplicabilidade, mas também aborda os desafios associados aos conceitos de IoT na indústria. Propõe uma visão integrada para a gestão e otimização operacional das linhas de produção, incluindo máquinas, atuadores e sensores, consolidando informações de forma abrangente, com inclusão de uma Base de Dados e com uma simples integração de modelos preditivos.
 
 ![IoT_Lab2.0-CGI-Industria](deisi14-iot_industria.png)
 
@@ -71,22 +71,18 @@
 
 ## **Repositórios Git**
 ### Front-end (App)
-- https://github.com/DEISI-ULHT-TFC-2023-24/TFC-DEISI14-IoT_Lab2.0-CGI-Industria.git
+- https://github.com/SamirNatvarlal/TFC_IoT_Lab2.0-CGI-Industria.git
 
-### Back-end (Arduino)
-- https://github.com/AnaWeng-a22205245/TFC_DEISI14-IoT_Lab2.0-CGI-Industria-_ArduinoPart.git
+### Back-end (Arduino e Base de Dados)
+- https://github.com/SamirNatvarlal/SamirNatvarlal-a22207165-RicardoBorges-a2203987-TFC_DEISI14-IoT_Lab2.0-CGI-Industria-ArduinoPart.git
+- https://github.com/SamirNatvarlal/tfc_inf_MySQL.git
 
 ## **Vídeo de demonstração**
-- Link : https://youtu.be/d4dT4sH1530
+- Link do trabalho atual: Por Fazer!!
+- Link do trabalho anterior: https://youtu.be/d4dT4sH1530
 
 ## **Testes**
 - Para uso teste da aplicação as credênciais são
-    - User: U4567
+    - User: admin
     - Pass: 12345
  
-
-## **Contacto**
-- *Ana Weng - *
-
-- 😊
-
