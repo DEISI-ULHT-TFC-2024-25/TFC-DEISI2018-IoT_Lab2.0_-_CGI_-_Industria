@@ -33,9 +33,12 @@ dependencies:
   mqtt_client: ^9.0.0
   firebase_database: ^10.5.5
   material_design_icons_flutter: 7.0.7296
-  http: ^1.0.0
+  http: ^0.13.6
   mysql1: ^0.20.0
   mysql_client: ^0.0.27
+  fl_chart: ^0.63.0
+  flutter_local_notifications: ^17.0.0
+
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Biblioteca HTTP para chamadas à API
+//import 'package:http/http.dart' as http; // Biblioteca HTTP para chamadas à API
 import 'package:tfc_industria/databaseconnector.dart';
 import 'package:tfc_industria/navigationBarPages/main_page.dart';
 

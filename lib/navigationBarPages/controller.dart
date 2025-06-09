@@ -9,7 +9,9 @@ class ControllerPage extends StatelessWidget {
       host: '5.196.78.28',
       topics: ['22205245/anawen/device/power', '22205245/anawen/device/dht11','22205245/anawen/device/test']
   );
+
   final String mainTopic='22205245/anawen/device/test';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,12 +90,12 @@ class ControllerPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 buildControllerButton('  OK        ', MdiIcons.stickerCheck,
-                        () => _myClient.publishMessage(mainTopic,'Corre função 2 modo OK')),
+                        () => _myClient.publishMessage(mainTopic,'Corre funcao 1 modo OK')),
                 SizedBox(
                   width: 15,
                 ),
                 buildControllerButton('NOT OK     ', MdiIcons.stickerAlert,
-                        () => _myClient.publishMessage(mainTopic,'Corre função 3 modo NOT OK')),
+                        () => _myClient.publishMessage(mainTopic,'Corre funcao 2 modo NOT OK')),
               ],
             ),
           ),

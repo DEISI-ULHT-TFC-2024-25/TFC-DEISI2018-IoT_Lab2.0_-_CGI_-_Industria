@@ -3,13 +3,16 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:flutter/material.dart';
 import 'package:tfc_industria/databaseconnector.dart';
 
+import '../notificationManager.dart';
+
 class MQTTManager {
   final String host;
-  final List<String> topics; // Support multiple topics
+  final List<String> topics;
   late MqttServerClient client;
-  Map<String, String> sensorData = {}; // Store received sensor data
+  Map<String, String> sensorData = {};
+  final NotificationManager notificationManager;
 
-  MQTTManager({required this.host, required this.topics}) {
+  MQTTManager({required this.host, required this.topics}) : notificationManager = NotificationManager() {
     connect();
   }
 
@@ -59,6 +62,15 @@ class MQTTManager {
     final builder = MqttClientPayloadBuilder();
     builder.addString(text);
     client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+
+    // Check the message content and show notification
+    if (text == "Corre funcao 1 modo OK") {
+      // Show notification for 2 seconds
+      notificationManager.showNotification("The service was OK", "The service was functioning correctly.");
+    } else if (text == "Corre funcao 2 modo NOT OK") {
+      // Show notification for 2 seconds
+      notificationManager.showNotification("The service was NOT OK", "There was an issue with the service.");
+    }
   }
 
   void unsubscribe() {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tfc_industria/databaseconnector.dart';
 class BasePage extends StatefulWidget {

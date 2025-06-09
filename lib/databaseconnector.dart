@@ -15,7 +15,7 @@ class DatabaseConnector {
           host: "10.0.2.2",
           port: 3306,
           userName: "root",
-          password: "secret",
+          password: "ubuntu",
           databaseName: "IoT_Lab2_0",
         );
         await _conn!.connect();
