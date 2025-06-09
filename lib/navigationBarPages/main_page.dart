@@ -13,24 +13,28 @@ class _MainPagesState extends State<MainPages> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Defina o título com base no índice selecionado
+    String appBarTitle = _selectedIndex == 3
+        ? "Relatorio KPI's"
+        : 'Bem Vindo IoT-Insdústria   |';
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60), // Aumenta a altura do AppBar
+        preferredSize: Size.fromHeight(60),
         child: AppBar(
           title: Padding(
             padding: const EdgeInsets.only(top: 30),
-            // Ajusta o título para baixo
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Bem Vindo IoT-Insdústria   |',
+                  appBarTitle,
                   style: TextStyle(
-                      color: Colors.black,
-                      // Ajuste para sua preferência de cor
-                      fontSize: 21,
-                      fontWeight:
-                          FontWeight.bold), // Ajuste do tamanho do texto
+                    color: Colors.black,
+                    fontSize: 21,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Row(
                   children: [
@@ -53,18 +57,17 @@ class _MainPagesState extends State<MainPages> {
               ],
             ),
           ),
-          backgroundColor: Colors.transparent, // Torna o AppBar transparente
-          elevation: 0, // Remove a sombra
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
       ),
       body: navigationsBarList[_selectedIndex].widget,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
         destinations: navigationsBarList
-            .map((pages) => NavigationDestination(
-                icon: Icon(pages.icon), label: pages.title))
+            .map((pages) =>
+            NavigationDestination(icon: Icon(pages.icon), label: pages.title))
             .toList(),
       ),
     );

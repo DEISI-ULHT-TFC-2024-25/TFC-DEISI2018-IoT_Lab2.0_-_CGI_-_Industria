@@ -104,7 +104,6 @@ class _AllPageState extends State<AllPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Relatório de KPIs - Dispositivo IoT")),
       body: FutureBuilder<void>(
         future: _dataFuture,
         builder: (context, snapshot) {
